@@ -1,8 +1,10 @@
 const {
   readInput,
   writeOutput,
-  getFirstDigitOfLine,
-  getLastDigitOfLine,
+  convertTextToNumber,
+  getDigitFromLine,
+  getRegexForUseCase,
+  UseCase,
   main,
 } = require('../src/utils');
 
@@ -41,39 +43,121 @@ describe('writeOutput', () => {
   });
 });
 
-describe('getFirstDigitOfLine', () => {
-  it('should return the first digit of a line', () => {
-    const line = 'e1abc2f';
+describe('convertTextToNumber', () => {
+  it('should convert text to number', () => {
+    const text = 'one';
 
-    const result = getFirstDigitOfLine(line);
+    const result = convertTextToNumber(text);
 
     expect(result).toEqual(1);
   });
 
-  it('should return null if the line does not contain a digit', () => {
-    const line = 'abc';
+  it('should return null if the text is not a number', () => {
+    const text = 'abc';
 
-    const result = getFirstDigitOfLine(line);
+    const result = convertTextToNumber(text);
 
     expect(result).toBe(null);
   });
 });
 
-describe('getLastDigitOfLine', () => {
-  it('should return the last digit of a line', () => {
-    const line = 'pqr3stu8vwx';
+describe('getRegexForUseCase', () => {
+  it('should return regex for use case FIRST', () => {
+    const result = getRegexForUseCase(UseCase.FIRST, false);
+    expect(result).toEqual(/\d/);
+  });
 
-    const result = getLastDigitOfLine(line);
+  it('should return regex for use case LAST', () => {
+    const result = getRegexForUseCase(UseCase.LAST, false);
+    expect(result).toEqual(/\d(?=\D*$)/);
+  });
 
+  it('should return regex for use case FIRST with text search', () => {
+    const result = getRegexForUseCase(UseCase.FIRST, true);
+    expect(result).toEqual(/\d|one|two|three|four|five|six|seven|eight|nine/);
+  });
+});
+
+describe('getDigitFromLine', () => {
+  // test cases for FIRST use case without text search
+  it('should return null if there is no digit in line', () => {
+    const result = getDigitFromLine('abc', UseCase.FIRST, false);
+    expect(result).toBe(null);
+  });
+
+  it('should return digit from line', () => {
+    const result = getDigitFromLine('1abc2', UseCase.FIRST, false);
+    expect(result).toEqual(1);
+  });
+
+  // test cases for LAST use case without text search
+  it('should return null if there is no digit in line', () => {
+    const result = getDigitFromLine('abc', UseCase.LAST, false);
+    expect(result).toBe(null);
+  });
+
+  it('should return digit from line', () => {
+    const result = getDigitFromLine('1abc2', UseCase.LAST, false);
+    expect(result).toEqual(2);
+  });
+
+  // test cases for FIRST use case with text search
+  it('should return null if there is no digit in line', () => {
+    const result = getDigitFromLine('abc', UseCase.FIRST, true);
+    expect(result).toBe(null);
+  });
+
+  it('should return digit from line', () => {
+    const result = getDigitFromLine('oneabc2', UseCase.FIRST, true);
+    expect(result).toEqual(1);
+  });
+
+  it('should return digit from line', () => {
+    const result = getDigitFromLine('2oneabc3', UseCase.FIRST, true);
+    expect(result).toEqual(2);
+  });
+
+  it('should return digit from line', () => {
+    const result = getDigitFromLine(
+      'two65eightbkgqcsn91qxkfvg',
+      UseCase.FIRST,
+      true
+    );
+    expect(result).toEqual(2);
+  });
+
+  // test cases for LAST use case with text search
+  it('should return null if there is no digit in line', () => {
+    const result = getDigitFromLine('abc', UseCase.LAST, true);
+    expect(result).toBe(null);
+  });
+
+  it('should return digit from line', () => {
+    const result = getDigitFromLine('oneabc2', UseCase.LAST, true);
+    expect(result).toEqual(2);
+  });
+
+  it('should return digit from line', () => {
+    const result = getDigitFromLine('2abc3one', UseCase.LAST, true);
+    expect(result).toEqual(1);
+  });
+
+  it('should return digit from line', () => {
+    const result = getDigitFromLine(
+      '126dzbvg6two4oneightntd',
+      UseCase.LAST,
+      true
+    );
     expect(result).toEqual(8);
   });
 
-  it('should return null if the line does not contain a digit', () => {
-    const line = 'abc';
-
-    const result = getLastDigitOfLine(line);
-
-    expect(result).toBe(null);
+  it('should return digit from line', () => {
+    const result = getDigitFromLine(
+      'neightwompstbkqv1fourfthdcfgtrkqzgrbfrczxbdn',
+      UseCase.LAST,
+      true
+    );
+    expect(result).toEqual(4);
   });
 });
 
@@ -82,9 +166,19 @@ describe('main', () => {
     const inPath = pathToInputFolder + 'input.test.txt';
     const outPath = pathToOutputFolder + 'output.test.txt';
 
-    await main(inPath, outPath);
+    await main(inPath, outPath), false;
     const content = await readInput(outPath);
 
     expect(content).toEqual('142');
+  });
+
+  it('should read test input file and write result to output file with text search', async () => {
+    const inPath = pathToInputFolder + 'input2.test.txt';
+    const outPath = pathToOutputFolder + 'output.test.txt';
+
+    await main(inPath, outPath, true);
+    const content = await readInput(outPath);
+
+    expect(content).toEqual('281');
   });
 });
