@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,7 +14,9 @@ public class App {
     public static void main(String[] args) throws Exception {
         ArrayList<String> inputByLines = readInputFromFile(args);
 
-        int result = inputByLines.stream().map(App::getNumberFromLine).reduce(0, Integer::sum);
+        int result = inputByLines.stream()
+                .map(App::getNumberFromLine)
+                .reduce(0, Integer::sum);
 
         System.out.println("Result: " + result);
     }
@@ -21,8 +24,9 @@ public class App {
     private static int getNumberFromLine(String inputLine) {
         List<String> charList = Arrays.asList(inputLine.split(""));
 
-        return Integer
-                .parseInt("" + getFirstNumberFromString(charList) + getFirstNumberFromString(charList.reversed()));
+        return Integer.parseInt(""
+                + getFirstNumberFromString(charList)
+                + getFirstNumberFromString(charList.reversed()));
     }
 
     private static long getFirstNumberFromString(List<String> charList) {
@@ -64,7 +68,7 @@ public class App {
                 resultFileByLines.add(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error when reading input: " + e.getMessage());
         }
 
         return resultFileByLines;
