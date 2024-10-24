@@ -5,53 +5,86 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class App {
 
     private static final String INPUT_BASE_PATH = "/home/ramza/AA/ws/aoc-2023/day-01/resources/";
     private static final String DEFAULT_INPUT = "d1.in";
+    private static final Map<String, Integer> NUMBERS_BY_NUMBER_STRINGS = Map.of("one", 1, "two", 2, "three", 3, "four", 4, "five", 5, "six", 6, "seven", 7, "eight", 8, "nine", 9);
 
     public static void main(String[] args) throws Exception {
         ArrayList<String> inputByLines = readInputFromFile(args);
 
         int result = inputByLines.stream()
-                .map(App::getNumberFromLine)
+                .map(App::getNumberFromLineWithText)
                 .reduce(0, Integer::sum);
 
         System.out.println("Result: " + result);
     }
 
-    private static int getNumberFromLine(String inputLine) {
-        List<String> charList = Arrays.asList(inputLine.split(""));
+    private static int getNumberFromLineWithText(String inputLine) {
+        String reversedInput = reverseString(inputLine);
+        List<String> valuesToFind = new ArrayList<>();
+        valuesToFind.addAll(NUMBERS_BY_NUMBER_STRINGS
+                .values().stream()
+                .map(nr -> nr.toString()).toList());
+        valuesToFind.addAll(NUMBERS_BY_NUMBER_STRINGS.keySet());
+        List<String> reversedValuesToFind = valuesToFind.stream()
+                .map(App::reverseString).toList();
 
-        return Integer.parseInt(""
-                + getFirstNumberFromString(charList)
-                + getFirstNumberFromString(charList.reversed()));
+        return getNumberFromLine(inputLine, valuesToFind, reversedInput, reversedValuesToFind);
     }
 
-    private static long getFirstNumberFromString(List<String> charList) {
-        int number = 0;
+    private static int getNumberFromLineWithoutText(String inputLine) {
+        String reversedInput = reverseString(inputLine);
+        List<String> valuesToFind = NUMBERS_BY_NUMBER_STRINGS
+                .values().stream()
+                .map(nr -> nr.toString()).toList();
+
+        return getNumberFromLine(inputLine, valuesToFind, reversedInput, valuesToFind);
+    }
+
+    private static int getNumberFromLine(String inputLine, List<String> valuesToFind, String reversedInput, List<String> valuesToFindReversed) {
+        int firstNumber = getFirstNumberFromLine(inputLine, valuesToFind, false);
+        int lastNumber = getFirstNumberFromLine(reversedInput, valuesToFindReversed, true);
+        int lineNumber = firstNumber * 10 + lastNumber;
+
+        return lineNumber;
+    }
+
+    private static int getFirstNumberFromLine(String inputLine, List<String> valuesToFind, boolean isReversed) {
+        int minLocation = inputLine.length();
+        String valueOfMinLocation = "";
         int i = 0;
-        boolean isFound = false;
+        int resultNumber;
 
-        while (!isFound && i < charList.size()) {
-            String currentCharacter = charList.get(i);
+        while (i < valuesToFind.size()) {
+            int currentLocation = inputLine.indexOf(valuesToFind.get(i));
 
-            try {
-                number = Integer.parseInt(currentCharacter);
-                isFound = true;
-            } catch (NumberFormatException e) {
-                // do nothing
+            if (currentLocation > -1 && currentLocation < minLocation) {
+                valueOfMinLocation = valuesToFind.get(i);
+                minLocation = currentLocation;
             }
 
             i++;
         }
 
-        if (!isFound) {
-            System.out.println("No number found in: " + charList);
+        try {
+            resultNumber = Integer.parseInt(valueOfMinLocation);
+        } catch (NumberFormatException e) {
+            resultNumber = isReversed
+                    ? NUMBERS_BY_NUMBER_STRINGS.get(reverseString(valueOfMinLocation))
+                    : NUMBERS_BY_NUMBER_STRINGS.get(valueOfMinLocation);
         }
 
-        return number;
+        return resultNumber;
+    }
+
+    private static String reverseString(String inputStr) {
+        return String.join("",
+                Arrays.asList(inputStr.split(""))
+                        .reversed());
     }
 
     private static ArrayList<String> readInputFromFile(String[] args) {
