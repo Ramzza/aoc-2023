@@ -16,43 +16,62 @@ public class AppD5P1 {
     public static void main(String[] args) throws Exception {
         ArrayList<String> inputByLines = readInputFromFile(args);
 
-        List<Integer> inputSeeds = getSeedsFromInput(inputByLines);
-        List<Map<Integer, MapEntry>> almanacMaps = getMapsFromInput(inputByLines);
+        List<Long> inputSeeds = getSeedsFromInput(inputByLines);
+        List<Map<Long, MapEntry>> mapsBySources = getMapsFromInput(inputByLines);
 
-        int lowestLocation = inputSeeds.stream()
-                .map(seed -> getLocationForSeed(seed, almanacMaps))
-                .reduce(Integer.MAX_VALUE, Integer::min);
+        long lowestLocation = inputSeeds.stream()
+                .map(seed -> getLocationForSeed(seed, mapsBySources))
+                .reduce(Long.MAX_VALUE, Long::min);
 
         System.out.println("Lowest location number: " + lowestLocation);
     }
 
-    private static int getLocationForSeed(int inputSeed, List<Map<Integer, MapEntry>> almanacMaps) {
-        return 0;
+    private static long getLocationForSeed(long inputSeed, List<Map<Long, MapEntry>> mapsBySources) {
+        long mappedValue = inputSeed;
+
+        for (int i = 0; i < mapsBySources.size(); i++) {
+            mappedValue = getDestinationFromMap(mappedValue, mapsBySources.get(i));
+        }
+
+        return mappedValue;
     }
 
-    private static List<Map<Integer, MapEntry>> getMapsFromInput(ArrayList<String> inputLines) {
-        List<Map<Integer, MapEntry>> almanacMaps = new ArrayList<>();
+    private static long getDestinationFromMap(long source, Map<Long, MapEntry> mapBySources) {
+        long highestLowerSource = mapBySources.keySet().stream().filter(key -> key <= source).reduce(-1L, Long::max);
+
+        // source is lower than the lowest existing mapping
+        if (highestLowerSource == -1) {
+            return source;
+        }
+
+        MapEntry mapping = mapBySources.get(highestLowerSource);
+
+        return source > mapping.destination + mapping.range ? source : mapping.destination + (source - mapping.source);
+    }
+
+    private static List<Map<Long, MapEntry>> getMapsFromInput(ArrayList<String> inputLines) {
+        List<Map<Long, MapEntry>> mapsBySources = new ArrayList<>();
 
         inputLines.forEach(inputLine -> {
             if (inputLine.contains("map")) {
-                almanacMaps.add(new HashMap<>());
+                mapsBySources.add(new HashMap<>());
             }
 
             if (Pattern.matches("[\\d ]+", inputLine)) {
-                List<Integer> mapEntryValues = List.of(inputLine.split(" ")).stream().map(Integer::parseInt).toList();
-                almanacMaps.getLast().put(mapEntryValues.get(0), new MapEntry(mapEntryValues));
+                List<Long> mapEntryValues = List.of(inputLine.split(" ")).stream().map(Long::parseLong).toList();
+                mapsBySources.getLast().put(mapEntryValues.get(1), new MapEntry(mapEntryValues));
             }
         });
 
-        return almanacMaps;
+        return mapsBySources;
     }
 
-    private static List<Integer> getSeedsFromInput(ArrayList<String> inputByLines) {
+    private static List<Long> getSeedsFromInput(ArrayList<String> inputByLines) {
         return List.of(
                 inputByLines.get(0)
                         .replace("seeds: ", "")
                         .split(" ")).stream()
-                .map(Integer::parseInt)
+                .map(Long::parseLong)
                 .toList();
     }
 
@@ -78,26 +97,14 @@ public class AppD5P1 {
 
     private static class MapEntry {
 
-        private final int destination;
-        private final int source;
-        private final int range;
+        private final long destination;
+        private final long source;
+        private final long range;
 
-        public MapEntry(List<Integer> mapEntryValues) {
+        public MapEntry(List<Long> mapEntryValues) {
             this.destination = mapEntryValues.get(0);
             this.source = mapEntryValues.get(1);
             this.range = mapEntryValues.get(2);
-        }
-
-        public int getDestination() {
-            return destination;
-        }
-
-        public int getSource() {
-            return source;
-        }
-
-        public int getRange() {
-            return range;
         }
     }
 }
