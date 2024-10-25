@@ -33,7 +33,12 @@ public class AppD5P1 {
     }
 
     private static List<Integer> getSeedsFromInput(ArrayList<String> inputByLines) {
-        return new ArrayList<>();
+        return List.of(
+                inputByLines.get(0)
+                        .replace("seeds: ", "")
+                        .split(" ")).stream()
+                .map(Integer::parseInt)
+                .toList();
     }
 
     private static ArrayList<String> readInputFromFile(String[] args) {
