@@ -3,8 +3,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class AppD5P1 {
 
@@ -29,7 +31,20 @@ public class AppD5P1 {
     }
 
     private static List<Map<Integer, MapEntry>> getMapsFromInput(ArrayList<String> inputLines) {
-        return new ArrayList<>();
+        List<Map<Integer, MapEntry>> almanacMaps = new ArrayList<>();
+
+        inputLines.forEach(inputLine -> {
+            if (inputLine.contains("map")) {
+                almanacMaps.add(new HashMap<>());
+            }
+
+            if (Pattern.matches("[\\d ]+", inputLine)) {
+                List<Integer> mapEntryValues = List.of(inputLine.split(" ")).stream().map(Integer::parseInt).toList();
+                almanacMaps.getLast().put(mapEntryValues.get(0), new MapEntry(mapEntryValues));
+            }
+        });
+
+        return almanacMaps;
     }
 
     private static List<Integer> getSeedsFromInput(ArrayList<String> inputByLines) {
@@ -61,16 +76,16 @@ public class AppD5P1 {
         return resultFileByLines;
     }
 
-    private class MapEntry {
+    private static class MapEntry {
 
         private final int destination;
         private final int source;
         private final int range;
 
-        public MapEntry(int destination, int source, int range) {
-            this.destination = destination;
-            this.source = source;
-            this.range = range;
+        public MapEntry(List<Integer> mapEntryValues) {
+            this.destination = mapEntryValues.get(0);
+            this.source = mapEntryValues.get(1);
+            this.range = mapEntryValues.get(2);
         }
 
         public int getDestination() {
