@@ -10,75 +10,90 @@ public class App {
 
     private static final String INPUT_BASE_PATH = "/home/ramza/AA/ws/aoc-2023/day-01/resources/";
     private static final String DEFAULT_INPUT = "d1.in";
-    private static final Map<String, Integer> NUMBERS_BY_NUMBER_STRINGS = Map.of("one", 1, "two", 2, "three", 3, "four", 4, "five", 5, "six", 6, "seven", 7, "eight", 8, "nine", 9);
+    private static final Map<String, Integer> NUMBERS_BY_NUMBERSTRINGS = Map.of("one", 1, "two", 2, "three", 3, "four", 4, "five", 5, "six", 6, "seven", 7, "eight", 8, "nine", 9);
 
     public static void main(String[] args) throws Exception {
         ArrayList<String> inputByLines = readInputFromFile(args);
+        boolean isTextSearchActive = args.length > 1 ? Boolean.parseBoolean(args[1]) : true;
 
         int result = inputByLines.stream()
-                .map(App::getNumberFromLineWithText)
+                .map(inputLine -> getNumberFromLine(inputLine, isTextSearchActive))
                 .reduce(0, Integer::sum);
 
         System.out.println("Result: " + result);
     }
 
-    private static int getNumberFromLineWithText(String inputLine) {
-        String reversedInput = reverseString(inputLine);
+    private static int getNumberFromLine(String inputLine, boolean isTextSearchActive) {
         List<String> valuesToFind = new ArrayList<>();
-        valuesToFind.addAll(NUMBERS_BY_NUMBER_STRINGS
-                .values().stream()
-                .map(nr -> nr.toString()).toList());
-        valuesToFind.addAll(NUMBERS_BY_NUMBER_STRINGS.keySet());
-        List<String> reversedValuesToFind = valuesToFind.stream()
-                .map(App::reverseString).toList();
+        valuesToFind.addAll(getNumberListToFind());
 
-        return getNumberFromLine(inputLine, valuesToFind, reversedInput, reversedValuesToFind);
-    }
+        if (isTextSearchActive) {
+            valuesToFind.addAll(NUMBERS_BY_NUMBERSTRINGS.keySet());
+        }
 
-    private static int getNumberFromLineWithoutText(String inputLine) {
-        String reversedInput = reverseString(inputLine);
-        List<String> valuesToFind = NUMBERS_BY_NUMBER_STRINGS
-                .values().stream()
-                .map(nr -> nr.toString()).toList();
-
-        return getNumberFromLine(inputLine, valuesToFind, reversedInput, valuesToFind);
-    }
-
-    private static int getNumberFromLine(String inputLine, List<String> valuesToFind, String reversedInput, List<String> valuesToFindReversed) {
-        int firstNumber = getFirstNumberFromLine(inputLine, valuesToFind, false);
-        int lastNumber = getFirstNumberFromLine(reversedInput, valuesToFindReversed, true);
+        int firstNumber = getFirstNumberFromLine(inputLine, valuesToFind);
+        int lastNumber = getLastNumberFromLine(inputLine, valuesToFind);
         int lineNumber = firstNumber * 10 + lastNumber;
 
         return lineNumber;
     }
 
-    private static int getFirstNumberFromLine(String inputLine, List<String> valuesToFind, boolean isReversed) {
-        int minLocation = inputLine.length();
-        String valueOfMinLocation = "";
+    private static int getFirstNumberFromLine(String inputLine, List<String> valuesToFind) {
         int resultNumber;
 
-        for (int i = 0; i < valuesToFind.size(); i++) {
-            int currentLocation = inputLine.indexOf(valuesToFind.get(i));
-
-            if (currentLocation > -1 && currentLocation < minLocation) {
-                valueOfMinLocation = valuesToFind.get(i);
-                minLocation = currentLocation;
-            }
-        }
+        String valueOfFirstMatchingLocation = getValueOfFirstMatchingLocation(inputLine, valuesToFind);
 
         try {
-            resultNumber = Integer.parseInt(valueOfMinLocation);
+            resultNumber = Integer.parseInt(valueOfFirstMatchingLocation);
         } catch (NumberFormatException e) {
-            resultNumber = isReversed
-                    ? NUMBERS_BY_NUMBER_STRINGS.get(reverseString(valueOfMinLocation))
-                    : NUMBERS_BY_NUMBER_STRINGS.get(valueOfMinLocation);
+            resultNumber = NUMBERS_BY_NUMBERSTRINGS.get(valueOfFirstMatchingLocation);
         }
 
         return resultNumber;
     }
 
+    private static int getLastNumberFromLine(String inputLine, List<String> valuesToFind) {
+        int resultNumber;
+
+        String reversedInput = reverseString(inputLine);
+        List<String> reversedValuesToFind = valuesToFind.stream()
+                .map(App::reverseString).toList();
+
+        String valueOfFirstMatchingLocation = getValueOfFirstMatchingLocation(reversedInput, reversedValuesToFind);
+
+        try {
+            resultNumber = Integer.parseInt(valueOfFirstMatchingLocation);
+        } catch (NumberFormatException e) {
+            resultNumber = NUMBERS_BY_NUMBERSTRINGS.get(reverseString(valueOfFirstMatchingLocation));
+        }
+
+        return resultNumber;
+    }
+
+    private static String getValueOfFirstMatchingLocation(String inputLine, List<String> valuesToFind) {
+        int firstMatchingLocation = inputLine.length();
+        String valueOfFirstMatchingLocation = "";
+
+        for (int i = 0; i < valuesToFind.size(); i++) {
+            int currentLocation = inputLine.indexOf(valuesToFind.get(i));
+
+            if (currentLocation > -1 && currentLocation < firstMatchingLocation) {
+                valueOfFirstMatchingLocation = valuesToFind.get(i);
+                firstMatchingLocation = currentLocation;
+            }
+        }
+
+        return valueOfFirstMatchingLocation;
+    }
+
     private static String reverseString(String inputStr) {
         return new StringBuilder(inputStr).reverse().toString();
+    }
+
+    private static List<String> getNumberListToFind() {
+        return NUMBERS_BY_NUMBERSTRINGS
+                .values().stream()
+                .map(nr -> nr.toString()).toList();
     }
 
     private static ArrayList<String> readInputFromFile(String[] args) {
