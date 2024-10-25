@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class AppD5P1 {
 
     private static final String INPUT_BASE_PATH = "/home/ramza/AA/ws/aoc-2023/day-05/resources/";
-    private static final String DEFAULT_INPUT = "d5.in";
+    private static final String DEFAULT_INPUT = "d5_ex.in";
 
     public static void main(String[] args) throws Exception {
         ArrayList<String> inputByLines = readInputFromFile(args);
@@ -46,7 +46,7 @@ public class AppD5P1 {
 
         MapEntry mapping = mapBySources.get(highestLowerSource);
 
-        return source > mapping.destination + mapping.range ? source : mapping.destination + (source - mapping.source);
+        return source > mapping.source + mapping.range ? source : mapping.destination + (source - mapping.source);
     }
 
     private static List<Map<Long, MapEntry>> getMapsFromInput(ArrayList<String> inputLines) {
