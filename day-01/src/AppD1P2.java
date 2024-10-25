@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class App {
+public class AppD1P2 {
 
     private static final String INPUT_BASE_PATH = "/home/ramza/AA/ws/aoc-2023/day-01/resources/";
     private static final String DEFAULT_INPUT = "d1.in";
@@ -57,7 +57,7 @@ public class App {
 
         String reversedInput = reverseString(inputLine);
         List<String> reversedValuesToFind = valuesToFind.stream()
-                .map(App::reverseString).toList();
+                .map(AppD1P2::reverseString).toList();
 
         String valueOfFirstMatchingLocation = getValueOfFirstMatchingLocation(reversedInput, reversedValuesToFind);
 
