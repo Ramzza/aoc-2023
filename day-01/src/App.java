@@ -75,10 +75,11 @@ public class App {
         String valueOfFirstMatchingLocation = "";
 
         for (int i = 0; i < valuesToFind.size(); i++) {
-            int currentLocation = inputLine.indexOf(valuesToFind.get(i));
+            String valueToFind = valuesToFind.get(i);
+            int currentLocation = inputLine.indexOf(valueToFind);
 
             if (currentLocation > -1 && currentLocation < firstMatchingLocation) {
-                valueOfFirstMatchingLocation = valuesToFind.get(i);
+                valueOfFirstMatchingLocation = valueToFind;
                 firstMatchingLocation = currentLocation;
             }
         }
