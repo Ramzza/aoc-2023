@@ -3,7 +3,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -56,18 +55,15 @@ public class App {
     private static int getFirstNumberFromLine(String inputLine, List<String> valuesToFind, boolean isReversed) {
         int minLocation = inputLine.length();
         String valueOfMinLocation = "";
-        int i = 0;
         int resultNumber;
 
-        while (i < valuesToFind.size()) {
+        for (int i = 0; i < valuesToFind.size(); i++) {
             int currentLocation = inputLine.indexOf(valuesToFind.get(i));
 
             if (currentLocation > -1 && currentLocation < minLocation) {
                 valueOfMinLocation = valuesToFind.get(i);
                 minLocation = currentLocation;
             }
-
-            i++;
         }
 
         try {
@@ -82,9 +78,7 @@ public class App {
     }
 
     private static String reverseString(String inputStr) {
-        return String.join("",
-                Arrays.asList(inputStr.split(""))
-                        .reversed());
+        return new StringBuilder(inputStr).reverse().toString();
     }
 
     private static ArrayList<String> readInputFromFile(String[] args) {
